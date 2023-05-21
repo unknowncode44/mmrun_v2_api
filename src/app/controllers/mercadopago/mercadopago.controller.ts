@@ -14,21 +14,46 @@ export class MercadopagoController {
     constructor(private readonly service: MercadopagoService){}
 
     @Post('create-preference')
-    async createPaymentPreference(@Res() res, @Body('item') item: Item) {
+    async createPaymentPreference(@Res() res, @Body() body) {
+        const item: Item = {
+            id: body.id,
+            category_id: body.category_id,
+            currency_id: body.currency_id,
+            description: body.description,
+            title: body.title,
+            quantity: body.quantity,
+            unit_price: body.unit_price,
+            createdAt: body.createdAt,
+            updatedAt: body.updatedAt
+        }
         this.service.paymentPreference(res, item)
     }
 
     mercadopago = require('mercadopago')
     @Post('notification')
-    notification(@Req() req, @Res() res) {
-        const {body} = req.query
-        this.mercadopago.payment.save(body)
-            .then(data => {
-                console.log(data);
-            })
-        console.log(body);
-        
-        res.status(200)
+    async notification(@Req() req, @Res() res) {
+        if(req.body.data != undefined){
+            const data = await this.service.fetchData(req.body.data.id)
+            const payment = {
+                card: data.card,
+                collector_id: data.collector_id,
+                date_approved: data.date_approved,
+                date_created: data.date_created,
+                description: data.description,
+                id: data.id,
+                money_release_date: data.money_release_date,
+                order: data.order,
+                payer: data.payer,
+                payment_method: data.payment_method,
+                statement_description: data.statement_description,
+                status: data.status,
+                status_detail: data.status_detail,
+                transaction_amount: data.transaction_amount
+            }
+            console.log(payment);
+            
+            res.status(200)
+        }
     }
 
 }

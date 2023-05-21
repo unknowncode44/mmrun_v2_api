@@ -1,7 +1,8 @@
-import { Body, Injectable, Res } from '@nestjs/common';
+import { Injectable, Res } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { TypeOrmCrudService } from '@nestjsx/crud-typeorm';
 import { Item } from '../../entities/items.entity';
+import axios from 'axios';
 
 @Injectable()
 export class MercadopagoService extends TypeOrmCrudService<Item> {
@@ -17,25 +18,17 @@ export class MercadopagoService extends TypeOrmCrudService<Item> {
         //! "sandbox_init_point" da la url de pago
         //! Access token seller
         this.mercadopago.configure({
-            access_token: 'TEST-8966988389876831-071512-2602778a987cd58f778fa08f56e1ae20-1161315572' //? <-- Paste here
+            access_token: process.env.MP_TOKEN //? <-- Paste here
         })
         const preference = {
-            items: [ {
-                id: "",
-                category_id: "",
-                currency_id: "ARS",
-                description: "",
-                title: "Ball",
-                quantity: 1,
-                unit_price: 2000
-            } ],
+            items: [ item ],
             back_urls: {
-                success: "https://db3c-2800-2164-b400-dc-d857-f5c2-99ec-5340.ngrok-free.app/mercadopago/notification",
-                failure: "https://db3c-2800-2164-b400-dc-d857-f5c2-99ec-5340.ngrok-free.app/mercadopago/notification",
-                pending: "https://db3c-2800-2164-b400-dc-d857-f5c2-99ec-5340.ngrok-free.app/mercadopago/notification"
+                success: "https://mmrun-fda85.web.app/",
+                failure: "https://mmrun-fda85.web.app/",
+                pending: "https://mmrun-fda85.web.app/"
             },
             auto_return: 'approved',
-            notification_url: "https://32de-2800-2164-b400-dc-d857-f5c2-99ec-5340.ngrok-free.app/mercadopago/notification"
+            notification_url: "https://3a2e-2800-2164-b400-dc-16b1-37dd-a95d-d797.ngrok-free.app/mercadopago/notification"
         }
         this.mercadopago.preferences.create(preference)
             .then((r: any) => {
@@ -46,24 +39,24 @@ export class MercadopagoService extends TypeOrmCrudService<Item> {
             })
     }
 
-    async paymentDone(@Body() body) {
-        const paymentData = {
-            transaction_amount: Number(body.transactionAmount),
-            token: body.token,
-            description: body.description,
-            installments: Number(body.installments),
-            payment_method_id: body.paymentMethodId,
-            issuer_id: body.issuerId,
-        };
-        this.mercadopago.payment.save(paymentData)
-            .then((response) => {
-                const { response: data } = response
-                console.log(data);
-                
-            })
-            .catch(e => {
-                console.log(e);
-                
-            })
+    async fetchData(id: any): Promise<any> {
+        const url = `https://api.mercadopago.com/v1/payments/${id}`;
+        const token = process.env.MP_TOKEN; // Reemplaza esto con tu token real
+
+        try {
+            const response = await axios.get(url, {
+            headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            });
+
+          // Procesa la respuesta de la API aquí
+            return response.data
+
+        } catch (error) {
+          // Manejo de errores
+            console.error(error);
+        }
     }
+
 }
