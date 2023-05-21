@@ -1,49 +1,69 @@
-import { Injectable } from '@nestjs/common';
+import { Body, Injectable, Res } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { TypeOrmCrudService } from '@nestjsx/crud-typeorm';
+import { Item } from '../../entities/items.entity';
 
 @Injectable()
-export class MercadopagoService {
-    mercadopago = require('mercadopago')
-    constructor() {
-        //Configuramos las credenciales de mercado pago
-        this.mercadopago.configure({
-            access_token: 'TEST-8715927984190297-071413-bda330adc2daee65c12e118edd6707aa-213887771'
-        })
+export class MercadopagoService extends TypeOrmCrudService<Item> {
+    
+    constructor(@InjectRepository(Item) repo) {
+        super(repo)
     }
 
-    
+    mercadopago = require('mercadopago')
     // Creamos una preferencia de pago:
-    async paymentPreference(/*@Res() res*/) {
-        const preference = {
-            item: [
-                {
-                    title: "Título",
-                    unit_price: 200,
-                    quantity: 1
-                }
-            ],
-            /*back_urls: {
-                success: "http://link-success.com.ar",
-                failure: "http://link-failure.com.ar",
-                pending: "http://link-pending.com.ar"
-            },
-            auto_return: 'approved'*/
-            notification_url: 'https://f973-2800-2164-b400-dc-d261-567d-e0bd-bdd6.ngrok-free.app/mercadopago/crear-preferencia'
-        }
+    async paymentPreference(@Res() res, item: Item) {
 
-        try {
-            const response = await this.mercadopago.preferences.create(preference)
-            return response.body.init_point
-            /*this.mercadopago.preferences.create(preference)
-                .then((r: any) => {
-                    res.json(r)
-                })
-                .catch((e: any) => {
-                    console.log(e)
-                    
-                })*/
+        //! "sandbox_init_point" da la url de pago
+        //! Access token seller
+        this.mercadopago.configure({
+            access_token: 'TEST-8966988389876831-071512-2602778a987cd58f778fa08f56e1ae20-1161315572' //? <-- Paste here
+        })
+        const preference = {
+            items: [ {
+                id: "",
+                category_id: "",
+                currency_id: "ARS",
+                description: "",
+                title: "Ball",
+                quantity: 1,
+                unit_price: 2000
+            } ],
+            back_urls: {
+                success: "https://db3c-2800-2164-b400-dc-d857-f5c2-99ec-5340.ngrok-free.app/mercadopago/notification",
+                failure: "https://db3c-2800-2164-b400-dc-d857-f5c2-99ec-5340.ngrok-free.app/mercadopago/notification",
+                pending: "https://db3c-2800-2164-b400-dc-d857-f5c2-99ec-5340.ngrok-free.app/mercadopago/notification"
+            },
+            auto_return: 'approved',
+            notification_url: "https://32de-2800-2164-b400-dc-d857-f5c2-99ec-5340.ngrok-free.app/mercadopago/notification"
         }
-        catch (e) {
-            throw new Error('Error creating payment reference')
-        }
+        this.mercadopago.preferences.create(preference)
+            .then((r: any) => {
+                res.json(r)
+            })
+            .catch((e: any) => {
+                console.log(e);
+            })
+    }
+
+    async paymentDone(@Body() body) {
+        const paymentData = {
+            transaction_amount: Number(body.transactionAmount),
+            token: body.token,
+            description: body.description,
+            installments: Number(body.installments),
+            payment_method_id: body.paymentMethodId,
+            issuer_id: body.issuerId,
+        };
+        this.mercadopago.payment.save(paymentData)
+            .then((response) => {
+                const { response: data } = response
+                console.log(data);
+                
+            })
+            .catch(e => {
+                console.log(e);
+                
+            })
     }
 }

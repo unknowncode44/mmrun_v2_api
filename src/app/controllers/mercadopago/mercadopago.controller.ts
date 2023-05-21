@@ -1,53 +1,32 @@
-import { Controller, Get, Post, Req, Res } from '@nestjs/common';
+import { Body, Controller, Post, Req, Res } from '@nestjs/common';
+import { Crud } from '@nestjsx/crud';
+import { Item } from 'src/app/entities/items.entity';
+import { MercadopagoService } from 'src/app/services/mercadopago/mercadopago.service';
+
+
+@Crud({
+    model: { type: Item }
+})
 
 @Controller('mercadopago')
 export class MercadopagoController {
 
-    mercadopago = require('mercadopago')
-
-    @Get()
-    test(): string {
-        return 'test'
-    }
+    constructor(private readonly service: MercadopagoService){}
 
     @Post('create-preference')
-    async createPaymentPreference(@Res() res) {
-
-        //! Access token seller
-        this.mercadopago.configure({
-            access_token: 'TEST-8966988389876831-071512-2602778a987cd58f778fa08f56e1ae20-1161315572' //? <-- Paste here
-        })
-
-        const preference = {
-            items: [
-                {
-                    title: 'Ball', //! ITEM NAME
-                    quantity: 1,
-                    currency_id: 'ARS',
-                    unit_price: 2000 //! PRICE
-                }
-            ],
-            back_urls: {
-                success: "http://localhost:3000/mercadopago",
-                failure: "http://localhost:3000/mercadopago",
-                pending: "http://localhost:3000/mercadopago"
-            },
-            auto_return: 'approved',
-            notification_url: 'https://3937-2800-2164-b400-dc-d261-567d-e0bd-bdd6.ngrok-free.app/mercadopago/create-preference'
-        }
-        this.mercadopago.preferences.create(preference)
-            .then((r: any) => {
-                res.json(r)
-            })
-            .catch((e: any) => {
-                console.log(e);
-            })
+    async createPaymentPreference(@Res() res, @Body('item') item: Item) {
+        this.service.paymentPreference(res, item)
     }
+
+    mercadopago = require('mercadopago')
     @Post('notification')
     notification(@Req() req, @Res() res) {
-        const data = req.query
-
-        console.log(data);
+        const {body} = req.query
+        this.mercadopago.payment.save(body)
+            .then(data => {
+                console.log(data);
+            })
+        console.log(body);
         
         res.status(200)
     }
