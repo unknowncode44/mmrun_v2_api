@@ -18,7 +18,7 @@ export class MercadopagoService extends TypeOrmCrudService<Item> {
         //! "sandbox_init_point" da la url de pago
         //! Access token seller
         this.mercadopago.configure({
-            access_token: process.env.MP_TOKEN //? <-- Paste here
+            access_token: process.env.ACCESS_TOKEN //? <-- Paste here
         })
         const preference = {
             items: [ item ],
@@ -41,7 +41,7 @@ export class MercadopagoService extends TypeOrmCrudService<Item> {
 
     async fetchData(id: any): Promise<any> {
         const url = `https://api.mercadopago.com/v1/payments/${id}`;
-        const token = process.env.MP_TOKEN; // Reemplaza esto con tu token real
+        const token = process.env.ACCESS_TOKEN; // Reemplaza esto con tu token real
 
         try {
             const response = await axios.get(url, {
