@@ -5,7 +5,7 @@ import { User } from "src/app/entities/user.entity";
 
 
 const dbConfig: TypeOrmModuleOptions = {
-    type: "postgres",
+    type: "mysql",
     host: process.env.DB_HOST,
     port: parseInt(process.env.DB_PORT, 10),
     username: process.env.DB_USERNAME,
