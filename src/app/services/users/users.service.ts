@@ -16,4 +16,12 @@ export class UsersService extends TypeOrmCrudService<User> {
         // usamos la llamada super para invocar el constructor de la clase base, en este caso TypeOrmCrudService
         super(repo)
     }
+
+    async findByUsername(username: string): Promise<User> {
+        return await this.repo.findOne({ where: { username: username} });
+    }
+
+    async findById(id: number): Promise<User> {
+        return await this.repo.findOne({ where: { id: id} });
+    }
 }

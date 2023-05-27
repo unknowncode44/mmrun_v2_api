@@ -9,6 +9,7 @@ import { SponsorsModule } from './sponsors/sponsors.module';
 import { UiModule } from './ui/ui.module';
 import dbConfig from 'src/database/config';
 import { MercadopadoModule } from './mercadopado/mercadopado.module';
+import { AuthModule } from '../modules/auth/auth.module';
 
 @Module({
   imports: [
@@ -19,6 +20,7 @@ import { MercadopadoModule } from './mercadopado/mercadopado.module';
     SponsorsModule,
     UiModule,
     MercadopadoModule,
+    AuthModule
   ],
   controllers: [AppController],
   providers: [AppService],
