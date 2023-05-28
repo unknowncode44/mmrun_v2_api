@@ -2,7 +2,6 @@ import { diskStorage } from "multer";
 import { v4 as uuidv4 } from 'uuid';
 
 import fs = require('fs')
-import FileType = require('file-type')
 
 import path = require('path')
 

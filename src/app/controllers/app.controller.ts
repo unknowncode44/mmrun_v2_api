@@ -1,10 +1,9 @@
-import { Controller, Get, HttpStatus, Param, ParseFilePipeBuilder, Post, Put, Req, Res, UploadedFile, UseInterceptors } from '@nestjs/common';
+import { Controller, Get, Param, Post, Put, Req, Res, UploadedFile, UseInterceptors } from '@nestjs/common';
 import { AppService } from '../services/app.service';
 import { FileInterceptor } from '@nestjs/platform-express'
-import { diskStorage } from 'multer';
-import { extname, join } from 'path';
 import { removeFile, saveImageToStorage } from '../helper/image-storage';
 import { Observable, of } from 'rxjs';
+import { join } from 'path';
 
 @Controller()
 export class AppController {
@@ -19,7 +18,8 @@ export class AppController {
   @UseInterceptors(FileInterceptor('file', saveImageToStorage))
   handleUpload(@UploadedFile() file: Express.Multer.File) {
       if(!file) return of({ error: 'File must be a png, jpg or jpeg' })
-      else return 'File uploaded'
+      //! Obtenemos el nombre para guardar en la base de datos!
+      else return `File uploaded: ${file.filename}`
 
       // Esta funcion es para eliminar la imagen o modificar la que esta (agregar / eliminar)
       const imagesFolderPath = join(process.cwd(), 'uploads')
