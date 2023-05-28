@@ -5,22 +5,28 @@ export class Runner {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column({ nullable: true })
+  @Column({ nullable: true})
+  runnerNumber: number
+
+  @Column({ nullable: false })
   name: string;
 
-  @Column({ nullable: true })
+  @Column({ nullable: false })
   email: string;
 
   @Column({ nullable: true })
   partnerID: number;
 
-  @Column({ nullable: true })
+  @Column({ nullable: false })
   catValue: string;
 
-  @Column({ nullable: true })
+  @Column({ nullable: false })
   runnerAge: string;
 
-  @Column({ nullable: true })
+  @Column({ nullable: false})
+  dni: string;
+
+  @Column({ nullable: false })
   runnerBirthDate: string;
 
   @Column({ nullable: true })
