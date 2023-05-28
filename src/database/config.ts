@@ -1,8 +1,9 @@
 import { TypeOrmModuleOptions } from "@nestjs/typeorm"
-import { Item } from "src/app/entities/items.entity";
-import { Runner } from "src/app/entities/runner.entity";
-import { UiElement } from "src/app/entities/ui.entity";
-import { User } from "src/app/entities/user.entity";
+import { Category } from "../app/entities/category.entity";
+import { Item } from "../app/entities/items.entity";
+import { Runner } from "../app/entities/runner.entity";
+import { UiElement } from "../app/entities/ui.entity";
+import { User } from "../app/entities/user.entity";
 
 
 const dbConfig: TypeOrmModuleOptions = {
@@ -12,7 +13,7 @@ const dbConfig: TypeOrmModuleOptions = {
     username: process.env.DB_USERNAME,
     password: process.env.DB_PASSWORD,
     database: process.env.DB_DATABASE,
-    entities: [ Runner, User, Item, UiElement/* include entities here */],
+    entities: [ Runner, User, Item, UiElement, Category/* include entities here */],
     synchronize: true // set to false in production
 };
 
