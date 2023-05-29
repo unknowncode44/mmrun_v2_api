@@ -10,7 +10,9 @@ import { AppModule } from './app/modules/app.module';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, { cors: true });
   
-  app.enableCors()
+  app.enableCors({
+    origin: ['https://mmrun-fda85.web.app', 'https://mmrun-fda85.web.app/dashboard', 'https://mmrun-fda85.web.app/dashboard/categories']
+  })
 
   const config = new DocumentBuilder()
     .setTitle('MMRun v2.0 example')
