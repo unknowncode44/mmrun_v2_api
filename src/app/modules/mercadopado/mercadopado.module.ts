@@ -5,6 +5,7 @@ import { Item } from 'src/app/entities/items.entity';
 import { MercadopagoService } from 'src/app/services/mercadopago/mercadopago.service';
 import { Crud } from '@nestjsx/crud';
 
+
 @Crud({
     model: { type: Item }
 })

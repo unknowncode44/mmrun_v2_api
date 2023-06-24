@@ -14,10 +14,11 @@ export class AppController {
     return this.appService.getHello();
   }
 
+
   @Post('upload')
   @UseInterceptors(FileInterceptor('file', saveImageToStorage))
   handleUpload(@UploadedFile() file: Express.Multer.File) {
-      if(!file) return of({ error: 'File must be a png, jpg or jpeg' })
+      if(!file) return of({ error: 'La extension del archivo no es valida' })
       //! Obtenemos el nombre para guardar en la base de datos!
       else return `File uploaded: ${file.filename}`
 
@@ -34,7 +35,7 @@ export class AppController {
     const imagesFolderPath = join(process.cwd(), 'uploads')
     const fullImagePath = join(imagesFolderPath + '/' + name)
     removeFile(fullImagePath)
-    if(!file) return of({ error: 'File must be a png, jpg or jpeg' })
+    if(!file) return of({ error: 'La extension del archivo no es valida' })
     else return 'File uploaded'
   }
 

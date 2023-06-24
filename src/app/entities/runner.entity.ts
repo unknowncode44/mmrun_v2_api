@@ -6,7 +6,7 @@ export class Runner {
   id: number;
 
   @Column({ nullable: true})
-  runnerNumber: number
+  runnerNumber: string
 
   @Column({ nullable: false })
   name: string;
@@ -15,7 +15,7 @@ export class Runner {
   email: string;
 
   @Column({ nullable: true })
-  partnerID: number;
+  partnerID: string;
 
   @Column({ nullable: false })
   catValue: string;
@@ -40,6 +40,15 @@ export class Runner {
 
   @Column({ nullable: true })
   tshirtSize: string;
+
+  // added 230618
+  @Column({nullable: true})
+  preference_id: string
+
+  @Column({nullable: true})
+  payment_amount: string
+
+
 
   @CreateDateColumn()
   createdAt: Date;

@@ -5,11 +5,12 @@ import fs = require('fs')
 
 import path = require('path')
 
-type validFileExtension = 'png' | 'jpg' | 'jpeg'
-type validMimeType = 'image/png' | 'image/jpg' | 'image/jpeg'
+type validFileExtension = 'png' | 'jpg' | 'jpeg' | 'pdf' | 'doc' | 'xls' | 'docx' | 'xlsx'
+type validMimeType = 'image/png' | 'image/jpg' | 'image/jpeg' | 'application/pdf' | 
+'application/vnd.openxmlformats-officedocument.wordprocessingml.document' | 'application/msword' | 'application/vnd.ms-excel'
 
-const validFileExtension: validFileExtension[] = ['png', 'jpg', 'jpeg']
-const validMimeType: validMimeType[] = ['image/png', 'image/jpg', 'image/jpeg']
+const validFileExtension: validFileExtension[] = ['png', 'jpg', 'jpeg', 'pdf' , 'doc', 'docx', 'xls', 'xlsx']
+const validMimeType: validMimeType[] = ['image/png', 'image/jpg', 'image/jpeg', 'application/msword', 'application/vnd.ms-excel', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'application/pdf']
 
 //! creamos los tipos de extensiones que soporta la carga:
 export const saveImageToStorage = {

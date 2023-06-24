@@ -5,14 +5,28 @@ import { NestFactory } from '@nestjs/core';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { AppModule } from './app/modules/app.module';
 
+import * as nodemailer from 'nodemailer'
 
+
+export const transporter = nodemailer.createTransport({
+  host: process.env.SMTP,
+  port: 465,
+  secure: true,
+  auth: {
+      user: process.env.EMAIL, // Email
+      pass: process.env.PASSWORD, // Contraseña
+  }
+})
+transporter.verify().then(() => {
+  console.log('Mailer Online')
+})
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule, { cors: true });
+  const app = await NestFactory.create(AppModule, {
+    snapshot: true
+  });
   
-  app.enableCors({
-    origin: ['https://mmrun-fda85.web.app', 'https://mmrun-fda85.web.app/dashboard', 'https://mmrun-fda85.web.app/dashboard/categories']
-  })
+  app.enableCors()
 
   const config = new DocumentBuilder()
     .setTitle('MMRun v2.0 example')
