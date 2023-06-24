@@ -1,7 +1,9 @@
 import { Body, Controller, Post, Req, Res } from '@nestjs/common';
 import { Crud } from '@nestjsx/crud';
 import { Item } from 'src/app/entities/items.entity';
+
 import { MercadopagoService } from 'src/app/services/mercadopago/mercadopago.service';
+
 
 
 @Crud({
@@ -11,7 +13,9 @@ import { MercadopagoService } from 'src/app/services/mercadopago/mercadopago.ser
 @Controller('mercadopago')
 export class MercadopagoController {
 
-    constructor(private readonly service: MercadopagoService){}
+    constructor(
+        private readonly service: MercadopagoService,
+        ){}
 
     @Post('create-preference')
     async createPaymentPreference(@Res() res, @Body() body) {
@@ -30,28 +34,53 @@ export class MercadopagoController {
     }
 
     mercadopago = require('mercadopago')
+
     @Post('notification')
     async notification(@Req() req, @Res() res) {
+
+        console.log('Solciitud de notificacion, DATOS DE SOLICITUD:');
+        console.log(req.body)
+        
+        
         if(req.body.data != undefined){
             const data = await this.service.fetchData(req.body.data.id)
-            const payment = {
-                card: data.card,
-                collector_id: data.collector_id,
-                date_approved: data.date_approved,
-                date_created: data.date_created,
-                description: data.description,
-                id: data.id,
-                money_release_date: data.money_release_date,
-                order: data.order,
-                payer: data.payer,
-                payment_method: data.payment_method,
-                statement_description: data.statement_description,
-                status: data.status,
-                status_detail: data.status_detail,
-                transaction_amount: data.transaction_amount
-            }
-            console.log(payment);
-            
+
+            console.log(`DATA DE METODO FETCH: `)
+
+            // const payment = {
+            //     //card: data.card,
+            //     // collector_id: data.collector_id,
+            //     // date_approved: data.date_approved,
+            //     // date_created: data.date_created,
+            //     description: data.description,
+            //     // id: data.id,
+            //     // money_release_date: data.money_release_date,
+            //     // order: data.order,
+            //     // payer: data.payer,
+            //     // payment_method: data.payment_method,
+            //     // statement_description: data.statement_description,
+            //     status: data.status,
+            //     // status_detail: data.status_detail,
+            //     // transaction_amount: data.transaction_amount
+            // }
+
+            // const reference = payment.description
+            // if(payment.status === 'approved'){
+            //     await this.service.fetchRunners().then((res) => {
+            //         for (let i = 0; i < res.data.length; i++) {
+            //             var e = res.data[i];
+            //             if(e.preference_id === reference){
+            //                 console.log('encontrado');
+            //                 e.status = payment.status 
+            //                 this.service.updateRunner(e.id, e).then(() => {
+            //                     this.service.sendMail(e.email, e.name, e.catValue, e.runnerNumber)
+            //                 })
+            //                 break
+            //             }
+            //         }
+                    
+            //     })                           
+            // }
             res.status(200)
         }
     }
