@@ -43,44 +43,55 @@ export class MercadopagoController {
         
         
         if(req.body.data != undefined){
-            const data = await this.service.fetchData(req.body.data.id)
-
-            console.log(`DATA DE METODO FETCH: `)
-
-            // const payment = {
-            //     //card: data.card,
-            //     // collector_id: data.collector_id,
-            //     // date_approved: data.date_approved,
-            //     // date_created: data.date_created,
-            //     description: data.description,
-            //     // id: data.id,
-            //     // money_release_date: data.money_release_date,
-            //     // order: data.order,
-            //     // payer: data.payer,
-            //     // payment_method: data.payment_method,
-            //     // statement_description: data.statement_description,
-            //     status: data.status,
-            //     // status_detail: data.status_detail,
-            //     // transaction_amount: data.transaction_amount
-            // }
-
-            // const reference = payment.description
-            // if(payment.status === 'approved'){
-            //     await this.service.fetchRunners().then((res) => {
-            //         for (let i = 0; i < res.data.length; i++) {
-            //             var e = res.data[i];
-            //             if(e.preference_id === reference){
-            //                 console.log('encontrado');
-            //                 e.status = payment.status 
-            //                 this.service.updateRunner(e.id, e).then(() => {
-            //                     this.service.sendMail(e.email, e.name, e.catValue, e.runnerNumber)
-            //                 })
-            //                 break
-            //             }
-            //         }
-                    
-            //     })                           
-            // }
+            await this.service.fetchData(req.body.data.id).then((data) => {
+                console.log(data);
+                console.log('data no es undefined, por ahora bien')
+                if(data.description) {
+                    const payment = {
+                        card: data.card,
+                        collector_id: data.collector_id,
+                        date_approved: data.date_approved,
+                        date_created: data.date_created,
+                        description: data.description,
+                        id: data.id,
+                        money_release_date: data.money_release_date,
+                        order: data.order,
+                        payer: data.payer,
+                        payment_method: data.payment_method,
+                        statement_description: data.statement_description,
+                        status: data.status,
+                        status_detail: data.status_detail,
+                        transaction_amount: data.transaction_amount
+                    }
+        
+                    const reference = payment.description
+                    if(payment.status === 'approved'){
+                        this.service.fetchRunners().then((res) => {
+                            for (let i = 0; i < res.data.length; i++) {
+                                var e = res.data[i];
+                                if(e.preference_id === reference){
+                                    console.log('encontrado');
+                                    e.status = payment.status 
+                                    this.service.updateRunner(e.id, e).then(() => {
+                                        this.service.sendMail(e.email, e.name, e.catValue, e.runnerNumber)
+                                    })
+                                    break
+                                }
+                            }  
+                        })                           
+                    }
+                    else {
+                        console.log('DATA DESCRIPTION NO EXISTE');   
+                    }
+                }
+                else {
+                    console.log('data.description no existe')
+                }
+                
+            })
+            //const data = await this.service.fetchData(req.body.data.id)
+            
+            
             res.status(200)
         }
     }

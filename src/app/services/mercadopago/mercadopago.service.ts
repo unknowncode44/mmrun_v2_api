@@ -26,19 +26,19 @@ export class MercadopagoService extends TypeOrmCrudService<Item> {
         const preference = {
             items: [ item ],
             back_urls: {
-                success: process.env.SITE+"/confirmation",
-                failure: process.env.SITE+"/confirmation",
-                pending: process.env.SITE+"/confirmation"
+                success: process.env.SITE+"/#/confirmation",
+                failure: process.env.SITE+"/#/confirmation",
+                pending: process.env.SITE+"/#/confirmation"
             },
             auto_return: 'approved',
             notification_url: process.env.URL+"/mercadopago/notification"
         }
         this.mercadopago.preferences.create(preference)
             .then((r: any) => {
-                console.log(
-                    `CREATING REFERENCE:
-                    ${JSON.stringify(r)}`
-                )
+                // console.log(
+                //     `CREATING REFERENCE:
+                //     ${JSON.stringify(r)}`
+                // )
                 res.json(r)
             })
             .catch((e: any) => {
