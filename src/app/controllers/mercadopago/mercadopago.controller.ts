@@ -1,5 +1,6 @@
 import { Body, Controller, Post, Req, Res } from '@nestjs/common';
 import { Crud } from '@nestjsx/crud';
+import { error } from 'console';
 import { Item } from 'src/app/entities/items.entity';
 
 import { MercadopagoService } from 'src/app/services/mercadopago/mercadopago.service';
@@ -37,62 +38,130 @@ export class MercadopagoController {
 
     @Post('notification')
     async notification(@Req() req, @Res() res) {
-
-        console.log('Solciitud de notificacion, DATOS DE SOLICITUD:');
+        console.log('Body de la notificacion');
         console.log(req.body)
         
-        
+        if(req.body.topic === 'merchant_order'){
+            const url = req.body.resource
+            const data = await this.service.fetchMerchantOrder(url)
+            
+            const reference = data.title
+            if(data.status === 'approved'){
+                this.service.fetchRunners().then(async (response) =>  {
+                    for (let i = 0; i < response.data.length; i++) {
+                        var e = response.data[i];
+                        if(e.preference_id === reference){
+                            if(e.status !== 'approved'){
+
+                                e.status = data.status 
+                                e.payment_id = data.payment_id
+                                await this.service.updateRunner(e.id, e).then( async () => {
+                                    if(e.mailSent !== null && e.mailSent === true){
+                                        await this.service.sendMail(e.email, e.name, e.catValue, e.runnerNumber, true, e.paymentStatusCheckUrl).then( async () => {
+                                            e.mailSent = true
+                                            await this.service.updateRunner(e.id, e)  
+                                        })
+                                        return
+                                    }
+                                    else {
+                                        await this.service.sendMail(e.email, e.name, e.catValue, e.runnerNumber, true, e.paymentStatusCheckUrl).then( async () => {
+                                            e.mailSent = true
+                                            await this.service.updateRunner(e.id, e)  
+                                        })
+                                    }
+                                })
+                                res.json({status: data.status, payment_id: data.payment_id, runnerId: e.id, reference: reference})
+                                res.status(200)
+                            }
+                            else {
+                                await this.service.updateRunner(e.id, e).then( async () => {
+                                    if(e.mailSent !== null || e.mailSent === true){
+                                        return
+                                    }
+                                    else {
+                                        await this.service.sendMail(e.email, e.name, e.catValue, e.runnerNumber, false, e.paymentStatusCheckUrl).then( async () => {
+                                            e.mailSent = true
+                                            await this.service.updateRunner(e.id, e)  
+                                        })
+                                    }
+                                })
+
+                            }
+                            break
+                        }
+                    }  
+                })                           
+            }
+            else {
+                console.log('payment no es approved');
+                res.json({status: "not approved", payment_id: data.payment_id, reference})
+                res.status(200)  
+            }
+
+        }
+
         if(req.body.data != undefined){
-            await this.service.fetchData(req.body.data.id).then((data) => {
-                console.log(data);
-                console.log('data no es undefined, por ahora bien')
-                if(data.description) {
-                    const payment = {
-                        card: data.card,
-                        collector_id: data.collector_id,
-                        date_approved: data.date_approved,
-                        date_created: data.date_created,
-                        description: data.description,
-                        id: data.id,
-                        money_release_date: data.money_release_date,
-                        order: data.order,
-                        payer: data.payer,
-                        payment_method: data.payment_method,
-                        statement_description: data.statement_description,
-                        status: data.status,
-                        status_detail: data.status_detail,
-                        transaction_amount: data.transaction_amount
-                    }
-        
-                    const reference = payment.description
-                    if(payment.status === 'approved'){
-                        this.service.fetchRunners().then((res) => {
-                            for (let i = 0; i < res.data.length; i++) {
-                                var e = res.data[i];
-                                if(e.preference_id === reference){
-                                    console.log('encontrado');
-                                    e.status = payment.status 
-                                    this.service.updateRunner(e.id, e).then(() => {
-                                        this.service.sendMail(e.email, e.name, e.catValue, e.runnerNumber)
-                                    })
-                                    break
-                                }
-                            }  
-                        })                           
+            const data = await this.service.fetchData(req.body.data.id)
+                //console.log(`fetch data devolvio: ${JSON.stringify(data)}`)
+                if(data !== undefined) {
+                    //console.log(`Data no es undefined, es: ${JSON.stringify(data)}`);
+                    
+                    if(data.description) {
+                        const payment = {
+                            card: data.card,
+                            collector_id: data.collector_id,
+                            date_approved: data.date_approved,
+                            date_created: data.date_created,
+                            description: data.description,
+                            id: data.id,
+                            money_release_date: data.money_release_date,
+                            order: data.order,
+                            payer: data.payer,
+                            payment_method: data.payment_method,
+                            statement_description: data.statement_description,
+                            status: data.status,
+                            status_detail: data.status_detail,
+                            transaction_amount: data.transaction_amount
+                        }
+            
+                        const reference = payment.description
+                        if(payment.status === 'approved'){
+                            this.service.fetchRunners().then((response) => {
+                                for (let i = 0; i < response.data.length; i++) {
+                                    var e = response.data[i];
+                                    if(e.preference_id === reference){
+                                        e.status = payment.status 
+                                        e.payment_id = payment.id
+                                        this.service.updateRunner(e.id, e).then(() => {
+                                            this.service.sendMail(e.email, e.name, e.catValue, e.runnerNumber, true)
+                                        })
+                                        res.status(200)
+                                        break
+                                    }
+                                }  
+                            })                           
+                        }
+                        else {
+                            //console.log('payment no es approved');
+                            res.json({status: "pending", reference})
+                            res.status(200)
+                            
+                        }
+                        
                     }
                     else {
                         console.log('DATA DESCRIPTION NO EXISTE');   
                     }
                 }
                 else {
-                    console.log('data.description no existe')
+                    console.log('data no existe')
+                    
                 }
-                
-            })
-            //const data = await this.service.fetchData(req.body.data.id)
-            
-            
             res.status(200)
+        }
+        else {
+            console.log('req.body.data es undefined');
+            res.status(404)
         }
     }
 

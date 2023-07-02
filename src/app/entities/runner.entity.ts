@@ -48,6 +48,19 @@ export class Runner {
   @Column({nullable: true})
   payment_amount: string
 
+  // added 230628 
+  @Column({nullable: true})
+  payment_id: string
+
+  @Column({nullable: true})
+  merchant_order_id: string
+
+  @Column({nullable: true, length: 600})
+  paymentStatusCheckUrl: string
+
+  @Column({nullable: true, default: false})
+  mailSent: boolean
+
 
 
   @CreateDateColumn()
