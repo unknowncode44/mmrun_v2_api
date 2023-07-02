@@ -27,8 +27,8 @@ export class MercadopagoService extends TypeOrmCrudService<Item> {
             items: [ item ],
             back_urls: {
                 success: process.env.SITE+"/#/confirmation",
-                failure: process.env.SITE+"/#/confirmation",
-                pending: process.env.SITE+"/#/confirmation"
+                failure: process.env.SITE+"/",
+                pending: process.env.SITE+"/"
             },
             auto_return: 'approved',
             notification_url: process.env.URL+"/mercadopago/notification"

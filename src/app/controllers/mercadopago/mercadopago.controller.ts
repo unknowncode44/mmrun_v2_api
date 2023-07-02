@@ -52,7 +52,7 @@ export class MercadopagoController {
                         var e = response.data[i];
                         if(e.preference_id === reference){
                             if(e.status !== 'approved'){
-
+                                e.merchant_order_id = data.merchant_order_id
                                 e.status = data.status 
                                 e.payment_id = data.payment_id
                                 await this.service.updateRunner(e.id, e).then( async () => {
