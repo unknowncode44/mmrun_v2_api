@@ -73,6 +73,7 @@ export class MercadopagoController {
                                 res.json({status: data.status, payment_id: data.payment_id, runnerId: e.id, reference: reference})
                                 res.status(200)
                             }
+
                             else {
                                 await this.service.updateRunner(e.id, e).then( async () => {
                                     if(e.mailSent !== null || e.mailSent === true){
@@ -87,6 +88,7 @@ export class MercadopagoController {
                                 })
 
                             }
+
                             break
                         }
                     }  
@@ -100,7 +102,7 @@ export class MercadopagoController {
 
         }
 
-        if(req.body.data != undefined){
+        else if(req.body.data != undefined){
             const data = await this.service.fetchData(req.body.data.id)
                 //console.log(`fetch data devolvio: ${JSON.stringify(data)}`)
                 if(data !== undefined) {

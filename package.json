@@ -25,6 +25,7 @@
     "@nestjs/devtools-integration": "^0.1.5",
     "@nestjs/jwt": "^10.0.3",
     "@nestjs/passport": "^9.0.3",
+    "@nestjs/serve-static": "^4.0.0",
     "@nestjs/swagger": "^6.3.0",
     "axios": "^1.4.0",
     "class-transformer": "^0.5.1",

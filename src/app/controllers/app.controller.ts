@@ -20,7 +20,7 @@ export class AppController {
   handleUpload(@UploadedFile() file: Express.Multer.File) {
       if(!file) return of({ error: 'La extension del archivo no es valida' })
       //! Obtenemos el nombre para guardar en la base de datos!
-      else return `File uploaded: ${file.filename}`
+      else return `{"file": "${file.filename}"}`
 
       // Esta funcion es para eliminar la imagen o modificar la que esta (agregar / eliminar)
       const imagesFolderPath = join(process.cwd(), 'uploads')
@@ -39,10 +39,10 @@ export class AppController {
     else return 'File uploaded'
   }
 
-  @Get('upload')
-  findImage(@Req() req, @Res() res): Observable<object> {
-    console.log(__dirname + 'uploads' +req.body.filename);
+  @Get('upload/:filename')
+  findImage(@Param('filename') __filename, @Res() res): Observable<object> {
+    //console.log(__dirname + 'uploads' +__filename);
     
-    return of(res.sendFile(req.body.filename, { root: './uploads' }))
+    return of(res.sendFile(__filename, { root: './uploads' }))
   }
 }

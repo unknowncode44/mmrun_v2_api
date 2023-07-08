@@ -3,6 +3,9 @@ import { AppController  } from '../controllers/app.controller';
 import { AppService     } from '../services/app.service';
 import { TypeOrmModule  } from '@nestjs/typeorm';
 
+import { ServeStaticModule } from '@nestjs/serve-static';
+import { join } from 'path';
+
 // modulos propios
 import { UsersModule        } from './users/users.module';
 import { RunnersModule      } from './runners/runners.module';
@@ -12,6 +15,7 @@ import { UiModule           } from './ui/ui.module';
 import { MercadopadoModule  } from './mercadopado/mercadopado.module';
 import { AuthModule         } from '../modules/auth/auth.module';
 import { DiscountsModule    } from './discounts/discounts.module';
+
 
 // debug 
 import { DevtoolsModule } from '@nestjs/devtools-integration'
@@ -33,7 +37,10 @@ import dbConfig from 'src/database/config';
     UiModule,
     MercadopadoModule,
     AuthModule,
-    DiscountsModule
+    DiscountsModule,
+    ServeStaticModule.forRoot({
+      rootPath: join(__dirname,'..','uploads')
+    })
   ],
   controllers: [AppController],
   providers: [AppService],
