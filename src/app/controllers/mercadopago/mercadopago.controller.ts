@@ -34,6 +34,9 @@ export class MercadopagoController {
 
         const id: string = body.user_id
 
+        console.log(`ID: ${id}`);
+        
+
         this.service.paymentPreference(res, item, id)
     }
 
