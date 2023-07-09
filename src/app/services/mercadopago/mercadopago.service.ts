@@ -16,19 +16,20 @@ export class MercadopagoService extends TypeOrmCrudService<Item> {
 
     mercadopago = require('mercadopago')
     // Creamos una preferencia de pago:
-    async paymentPreference(@Res() res, item: Item) {
+    async paymentPreference(@Res() res, item: Item, id: string) {
 
         //! "sandbox_init_point" da la url de pago
         //! Access token seller
         this.mercadopago.configure({
             access_token: process.env.ACCESS_TOKEN //? <-- Paste here
         })
+        console.log(`Este es identification number: ${id}`)
         const preference = {
             items: [ item ],
             back_urls: {
-                success: process.env.SITE+"/#/confirmation/success",
+                success: process.env.SITE+"/#/confirmation/success/"+id,
                 failure: process.env.SITE+"/#/",
-                pending: process.env.SITE+"/#/confirmation/pending"
+                pending: process.env.SITE+"/#/confirmation/pending/"+id
             },
             auto_return: 'approved',
             notification_url: process.env.URL+"/mercadopago/notification"

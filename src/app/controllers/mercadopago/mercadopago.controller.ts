@@ -31,7 +31,10 @@ export class MercadopagoController {
             createdAt: body.createdAt,
             updatedAt: body.updatedAt
         }
-        this.service.paymentPreference(res, item)
+
+        const id: string = body.user_id
+
+        this.service.paymentPreference(res, item, id)
     }
 
     mercadopago = require('mercadopago')

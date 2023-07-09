@@ -61,6 +61,10 @@ export class Runner {
   @Column({nullable: true, default: false})
   mailSent: boolean
 
+  //added 230709
+  @Column({nullable: true})
+  identification_number: string
+
 
 
   @CreateDateColumn()
