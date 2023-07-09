@@ -50,7 +50,7 @@ export class MercadopagoController {
             
             const reference = data.title
             if(data.status === 'approved'){
-                this.service.fetchRunners().then(async (response) =>  {
+                this.service.fetchRunners().then((response) =>  {
                     for (let i = 0; i < response.data.length; i++) {
                         var e = response.data[i];
                         if(e.preference_id === reference){
@@ -58,18 +58,18 @@ export class MercadopagoController {
                                 e.merchant_order_id = data.merchant_order_id
                                 e.status = data.status 
                                 e.payment_id = data.payment_id
-                                await this.service.updateRunner(e.id, e).then( async () => {
+                                this.service.updateRunner(e.id, e).then( () => {
                                     if(e.mailSent !== null && e.mailSent === true){
-                                        await this.service.sendMail(e.email, e.name, e.catValue, e.runnerNumber, true, e.paymentStatusCheckUrl).then( async () => {
+                                        this.service.sendMail(e.email, e.name, e.catValue, e.runnerNumber, true, e.paymentStatusCheckUrl).then(() => {
                                             e.mailSent = true
-                                            await this.service.updateRunner(e.id, e)  
+                                            this.service.updateRunner(e.id, e)  
                                         })
                                         return
                                     }
                                     else {
-                                        await this.service.sendMail(e.email, e.name, e.catValue, e.runnerNumber, true, e.paymentStatusCheckUrl).then( async () => {
+                                        this.service.sendMail(e.email, e.name, e.catValue, e.runnerNumber, true, e.paymentStatusCheckUrl).then(() => {
                                             e.mailSent = true
-                                            await this.service.updateRunner(e.id, e)  
+                                            this.service.updateRunner(e.id, e)  
                                         })
                                     }
                                 })
@@ -78,14 +78,14 @@ export class MercadopagoController {
                             }
 
                             else {
-                                await this.service.updateRunner(e.id, e).then( async () => {
+                                this.service.updateRunner(e.id, e).then(() => {
                                     if(e.mailSent !== null || e.mailSent === true){
                                         return
                                     }
                                     else {
-                                        await this.service.sendMail(e.email, e.name, e.catValue, e.runnerNumber, false, e.paymentStatusCheckUrl).then( async () => {
+                                        this.service.sendMail(e.email, e.name, e.catValue, e.runnerNumber, false, e.paymentStatusCheckUrl).then(() => {
                                             e.mailSent = true
-                                            await this.service.updateRunner(e.id, e)  
+                                            this.service.updateRunner(e.id, e)  
                                         })
                                     }
                                 })
@@ -137,9 +137,12 @@ export class MercadopagoController {
                                     if(e.preference_id === reference){
                                         e.status = payment.status 
                                         e.payment_id = payment.id
-                                        this.service.updateRunner(e.id, e).then(() => {
-                                            this.service.sendMail(e.email, e.name, e.catValue, e.runnerNumber, true)
-                                        })
+                                        if(e.mailSent === false) {
+                                            e.mailSent = true
+                                            this.service.updateRunner(e.id, e).then(() => {
+                                                this.service.sendMail(e.email, e.name, e.catValue, e.runnerNumber, true)
+                                            })
+                                        }
                                         res.status(200)
                                         break
                                     }
