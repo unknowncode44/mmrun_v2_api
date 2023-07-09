@@ -11,7 +11,7 @@ import { NestApplicationContextOptions } from '@nestjs/common/interfaces/nest-ap
 
 export const transporter = nodemailer.createTransport({
   host: process.env.SMTP,
-  port: 465,
+  port: process.env.MAIL_PORT,
   secure: true,
   auth: {
       user: process.env.EMAIL, // Email

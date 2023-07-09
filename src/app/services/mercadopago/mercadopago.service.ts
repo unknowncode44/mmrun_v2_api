@@ -130,11 +130,11 @@ export class MercadopagoService extends TypeOrmCrudService<Item> {
     }
 
     async sendMail(email: string, name: string, distance: string, runnerNumber: string, approved?: boolean, checkUrl?: string){
-        let _email = process.env.EMAIL
+        //let _email = process.env.EMAIL
         if(approved === true){
             try {
                 await transporter.sendMail({
-                    from: `"Mari Menuco Run 2023`,
+                    from: `notificaciones@mmrun.com.ar`,
                     to: email,
                     subject: 'Confirmación de inscripción',
                     text: 'Confirmación, pago realizado con exito',
@@ -223,7 +223,7 @@ export class MercadopagoService extends TypeOrmCrudService<Item> {
         else {
             try {
                 await transporter.sendMail({
-                    from: `"Mari Menuco Run`,
+                    from: `notificaciones@mmrun.com.ar`,
                     to: email,
                     subject: 'Confirmación de inscripción',
                     text: 'Inscripción Pendiente',
