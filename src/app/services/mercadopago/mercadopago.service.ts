@@ -198,6 +198,8 @@ export class MercadopagoService extends TypeOrmCrudService<Item> {
                         font-size: 3.5em;
                         color: #44226e;
                     }
+
+                    
                     </style>
 
                     <div class="wrapper">
@@ -212,6 +214,16 @@ export class MercadopagoService extends TypeOrmCrudService<Item> {
                                 <h1>${runnerNumber}</h1>
                                 
                             </div>
+                            
+                            <div class="offers">
+                                <p><strong>Con tu inscripción a Mari Menuco Run tenes 20% off en imperdibles descuentos abonando en efectivo:</strong></p>
+                                <br>
+                                <ul>
+                                    <li>Aberturas de aluminio Divanni, con guarda de materiales por tiempo indeterminado</li>
+                                    <li>Alinea tu alimentación y mejora tu rendimiento deportivo con Camila sabatini, nutricionista de nuestro staff</li>
+                                </ul> 
+                            </div>
+
                         </div>
                     </div>`
                 })

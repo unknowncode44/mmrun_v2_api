@@ -6,7 +6,7 @@ import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { AppModule } from './app/modules/app.module';
 
 import * as nodemailer from 'nodemailer'
-import { NestApplicationContextOptions } from '@nestjs/common/interfaces/nest-application-context-options.interface';
+
 
 
 export const transporter = nodemailer.createTransport({
