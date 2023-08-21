@@ -61,6 +61,9 @@ export class MercadopagoController {
                                 e.merchant_order_id = data.merchant_order_id
                                 e.status = data.status 
                                 e.payment_id = data.payment_id
+                                if(e.runnerNumber !== e.id.toString()) {
+                                    e.runnerNumber = e.id.toString()
+                                }
                                 this.service.updateRunner(e.id, e).then( () => {
                                     if(e.mailSent !== null && e.mailSent === true){
                                         this.service.sendMail(e.email, e.name, e.catValue, e.runnerNumber, true, e.paymentStatusCheckUrl).then(() => {
@@ -176,7 +179,25 @@ export class MercadopagoController {
         }
     }
 
+    @Post('walk')
+    async sendWalkMail(@Req() req, @Body() Body, @Res() res){
+        try {
+            this.service.sendMailWalk(req.body.email, req.body.name, req.body.runnerNumber).then( () => {
+                res.json({status: `Email Sent to ${req.body.email}`})
+                res.status(200)
+            })
+            
+        } catch (error) {
+            console.error(error)
+            res.status(500)
+            
+        }
+
+    }
+
 }
+
+
 
 /*
 APPROVED

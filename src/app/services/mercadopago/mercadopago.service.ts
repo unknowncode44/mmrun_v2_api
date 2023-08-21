@@ -323,6 +323,111 @@ export class MercadopagoService extends TypeOrmCrudService<Item> {
         }
     }
 
+    async sendMailWalk(email: string, name: string, runnerNumber: string) {
+        try {
+            await transporter.sendMail({
+                from: `notificaciones@mmrun.com.ar`,
+                to: email,
+                subject: 'Confirmación de inscripción',
+                text: 'Confirmación exitosa',
+                html: `
+                <style>
+                .wrapper {
+                    height: 100vh;
+                    width: 100%;
+                    display: flex;
+                    flex-direction: column;
+                    padding: 0.5rem;
+                    align-items: center;
+                    justify-content: center;
+                    padding: 0px 15rem;
+                }
+                
+                .wrapper .card {
+                    display: flex;
+                    flex-direction: column;
+                    min-width: 99%;
+                    min-height: 99%;
+                    border-radius: 2%;
+                    background: #D6D5D7;
+                }
+                .wrapper .card .header {
+                    text-align: center;
+                    padding: 0px 1rem;
+                }
+                .wrapper .card .header h2 {
+                    font-weight: 800;
+                    text-transform: uppercase;
+                    font-size: 1.2em;
+                }
+                .wrapper .card .header h4 {
+                    font-weight: 600;
+                }
+                .wrapper .card .header p {
+                    text-align: justify;
+                    margin: 0.5rem 0px;
+                }
+                .wrapper .card .header p a {
+                    color: #00FABA;
+                    font-weight: 600;
+                }
+                    
+                .wrapper .card .runner-number {
+                    margin: 1.2rem 0px;
+                    width: 100%;
+                    background: #00FABA;
+                    height: 20%;
+                    text-align: center;
+                }
+                .wrapper .card .runner-number h3 {
+                    font-weight: 800;
+                    color: #44226e;
+                    font-size: 1.2em;
+                    text-transform: uppercase;
+                }
+                .wrapper .card .runner-number h1 {
+                    font-weight: 800;
+                    font-size: 3.5em;
+                    color: #44226e;
+                }
+
+                
+
+                
+                </style>
+
+                <div class="wrapper">
+                    <div class="card">
+                        <div class="header">
+                            <h2>Inscripcion Confirmada</h2>
+                            <h4>${name}, gracias por participar!</h4>
+                           
+                        </div>
+                        <div class="runner-number">
+                            <h3>Corredor Numero</h3>
+                            <h1>${runnerNumber}</h1>
+                            
+                        </div>
+                        
+                        <div class="offers">
+                            <p><strong>Con tu inscripción a Mari Menuco Run tenes 20% off en imperdibles descuentos abonando en efectivo:</strong></p>
+                            <br>
+                            <ul>
+                                <li>Aberturas de aluminio Divanni, con guarda de materiales por tiempo indeterminado</li>
+                                <li>Alinea tu alimentación y mejora tu rendimiento deportivo con Camila Sabatini, nutricionista de nuestro staff</li>
+                            </ul> 
+                        </div>
+
+                    </div>
+                </div>`
+            })
+            
+        } catch (error) {
+            console.log(error)
+        }
+
+    }
+
 
 
 }

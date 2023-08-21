@@ -65,6 +65,10 @@ export class Runner {
   @Column({nullable: true})
   identification_number: string
 
+  //added 230816
+  @Column({nullable: true})
+  discountText: string
+
 
 
   @CreateDateColumn()
