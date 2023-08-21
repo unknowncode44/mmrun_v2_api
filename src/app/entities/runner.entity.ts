@@ -69,8 +69,6 @@ export class Runner {
   @Column({nullable: true})
   discountText: string
 
-
-
   @CreateDateColumn()
   createdAt: Date;
 
