@@ -110,12 +110,23 @@ export class MercadopagoService extends TypeOrmCrudService<Item> {
     async fetchRunners(): Promise<any> {
         const url: string = process.env.URL+'/runners'
         try {
-            const response = axios.get(url)
+            const response = await axios.get(url)
             return response
             
         } catch (error) {
             // Manejo de errores
             console.error(error);
+        }
+    }
+
+    async fetchUniqueRunner(id: string): Promise<any> {
+        const url: string = process.env.URL+'/runners/'+id
+        try {
+            const response = await axios.get(url)
+            return response
+        }
+        catch (error) {
+            console.error(error)
         }
     }
 

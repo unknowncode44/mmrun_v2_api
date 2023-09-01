@@ -1,6 +1,5 @@
 import { Body, Controller, Post, Req, Res } from '@nestjs/common';
 import { Crud } from '@nestjsx/crud';
-import { error } from 'console';
 import { Item } from 'src/app/entities/items.entity';
 
 import { MercadopagoService } from 'src/app/services/mercadopago/mercadopago.service';
@@ -53,7 +52,7 @@ export class MercadopagoController {
             
             const reference = data.title
             if(data.status === 'approved'){
-                this.service.fetchRunners().then((response) =>  {
+                this.service.fetchRunners().then( async (response) =>  {
                     for (let i = 0; i < response.data.length; i++) {
                         var e = response.data[i];
                         if(e.preference_id === reference){
@@ -63,17 +62,20 @@ export class MercadopagoController {
                                 e.payment_id = data.payment_id
                                 if(e.runnerNumber !== e.id.toString()) {
                                     e.runnerNumber = e.id.toString()
+                                    console.info(`[Info] Updated RunnerNumber of ${e.id}`)
                                 }
-                                this.service.updateRunner(e.id, e).then( () => {
+                                await this.service.updateRunner(e.id, e).then( () => {
                                     if(e.mailSent !== null && e.mailSent === true){
-                                        this.service.sendMail(e.email, e.name, e.catValue, e.runnerNumber, true, e.paymentStatusCheckUrl).then(() => {
+                                        this.service.sendMail(e.email, e.name, e.catValue, e.id.toString(), true, e.paymentStatusCheckUrl).then(() => {
+                                            console.info(`[Info] Email Sent to ${e.email}`)
                                             e.mailSent = true
                                             this.service.updateRunner(e.id, e)  
                                         })
                                         return
                                     }
                                     else {
-                                        this.service.sendMail(e.email, e.name, e.catValue, e.runnerNumber, true, e.paymentStatusCheckUrl).then(() => {
+                                        this.service.sendMail(e.email, e.name, e.catValue, e.id.toString(), true, e.paymentStatusCheckUrl).then(() => {
+                                            console.info(`[Info] Email Sent to ${e.email}`)
                                             e.mailSent = true
                                             this.service.updateRunner(e.id, e)  
                                         })
@@ -89,7 +91,8 @@ export class MercadopagoController {
                                         return
                                     }
                                     else {
-                                        this.service.sendMail(e.email, e.name, e.catValue, e.runnerNumber, false, e.paymentStatusCheckUrl).then(() => {
+                                        this.service.sendMail(e.email, e.name, e.catValue, e.id.toString(), false, e.paymentStatusCheckUrl).then(() => {
+                                            console.info(`[Info] Email Sent to ${e.email}`)
                                             e.mailSent = true
                                             this.service.updateRunner(e.id, e)  
                                         })
@@ -137,16 +140,23 @@ export class MercadopagoController {
             
                         const reference = payment.description
                         if(payment.status === 'approved'){
-                            this.service.fetchRunners().then((response) => {
+                            this.service.fetchRunners().then( async (response) => {
                                 for (let i = 0; i < response.data.length; i++) {
                                     var e = response.data[i];
                                     if(e.preference_id === reference){
                                         e.status = payment.status 
                                         e.payment_id = payment.id
+                                        if(e.runnerNumber !== e.id.toString()) {
+                                            e.runnerNumber = e.id.toString()
+                                            await this.service.updateRunner(e.id, e).then(() => {
+                                                console.info(`[Info] Updated RunnerNumber of ${e.id}`)
+                                            })                                            
+                                        }
                                         if(e.mailSent === false) {
                                             e.mailSent = true
                                             this.service.updateRunner(e.id, e).then(() => {
-                                                this.service.sendMail(e.email, e.name, e.catValue, e.runnerNumber, true)
+                                                this.service.sendMail(e.email, e.name, e.catValue, e.id.toString(), true)
+                                                console.info(`[Info] Email Sent to ${e.email}`)
                                             })
                                         }
                                         res.status(200)
@@ -182,15 +192,14 @@ export class MercadopagoController {
     @Post('walk')
     async sendWalkMail(@Req() req, @Body() Body, @Res() res){
         try {
-            this.service.sendMailWalk(req.body.email, req.body.name, req.body.runnerNumber).then( () => {
+            this.service.sendMailWalk(req.body.email, req.body.name, 'A confirmar').then( () => {
+                console.info(`[Info] Email Sent to ${req.body.email}`)
                 res.json({status: `Email Sent to ${req.body.email}`})
                 res.status(200)
             })
-            
         } catch (error) {
             console.error(error)
-            res.status(500)
-            
+            res.status(500)  
         }
 
     }
