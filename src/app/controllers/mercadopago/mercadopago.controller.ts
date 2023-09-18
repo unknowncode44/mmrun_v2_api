@@ -64,20 +64,24 @@ export class MercadopagoController {
                                     e.runnerNumber = e.id.toString()
                                     console.info(`[Info] Updated RunnerNumber of ${e.id}`)
                                 }
-                                await this.service.updateRunner(e.id, e).then( () => {
+                                await this.service.updateRunner(e.id, e).then( async () => {
                                     if(e.mailSent !== null && e.mailSent === true){
-                                        this.service.sendMail(e.email, e.name, e.catValue, e.id.toString(), true, e.paymentStatusCheckUrl).then(() => {
+                                        await this.service.sendMail(e.email, e.name, e.catValue, e.id.toString(), true, e.paymentStatusCheckUrl)
+                                        .then( async () => {
+                                            await this.service.sendMail('tomas.decaboteau@gmail.com', e.name, e.catValue, e.id.toString(), true, e.paymentStatusCheckUrl)
                                             console.info(`[Info] Email Sent to ${e.email}`)
                                             e.mailSent = true
-                                            this.service.updateRunner(e.id, e)  
+                                            await this.service.updateRunner(e.id, e)  
                                         })
                                         return
                                     }
                                     else {
-                                        this.service.sendMail(e.email, e.name, e.catValue, e.id.toString(), true, e.paymentStatusCheckUrl).then(() => {
+                                        await this.service.sendMail(e.email, e.name, e.catValue, e.id.toString(), true, e.paymentStatusCheckUrl)
+                                        .then(async () => {
+                                            await this.service.sendMail('tomas.decaboteau@gmail.com', e.name, e.catValue, e.id.toString(), true, e.paymentStatusCheckUrl)
                                             console.info(`[Info] Email Sent to ${e.email}`)
                                             e.mailSent = true
-                                            this.service.updateRunner(e.id, e)  
+                                            await this.service.updateRunner(e.id, e)  
                                         })
                                     }
                                 })
@@ -86,15 +90,17 @@ export class MercadopagoController {
                             }
 
                             else {
-                                this.service.updateRunner(e.id, e).then(() => {
+                                this.service.updateRunner(e.id, e).then( async () => {
                                     if(e.mailSent !== null || e.mailSent === true){
                                         return
                                     }
                                     else {
-                                        this.service.sendMail(e.email, e.name, e.catValue, e.id.toString(), false, e.paymentStatusCheckUrl).then(() => {
+                                        await this.service.sendMail(e.email, e.name, e.catValue, e.id.toString(), false, e.paymentStatusCheckUrl)
+                                        .then( async () => {
+                                            await this.service.sendMail('tomas.decaboteau@gmail.com', e.name, e.catValue, e.id.toString(), true, e.paymentStatusCheckUrl)
                                             console.info(`[Info] Email Sent to ${e.email}`)
                                             e.mailSent = true
-                                            this.service.updateRunner(e.id, e)  
+                                            await this.service.updateRunner(e.id, e)  
                                         })
                                     }
                                 })
@@ -152,11 +158,16 @@ export class MercadopagoController {
                                                 console.info(`[Info] Updated RunnerNumber of ${e.id}`)
                                             })                                            
                                         }
-                                        if(e.mailSent === false) {
+                                        if(e.mailSent === false || e.mailSent === null) {
                                             e.mailSent = true
-                                            this.service.updateRunner(e.id, e).then(() => {
-                                                this.service.sendMail(e.email, e.name, e.catValue, e.id.toString(), true)
-                                                console.info(`[Info] Email Sent to ${e.email}`)
+                                            this.service.updateRunner(e.id, e).then( async () => {
+                                                await this.service.sendMail(e.email, e.name, e.catValue, e.id.toString(), true)
+                                                .then( async () => {
+                                                    await this.service.sendMail('tomas.decaboteau@gmail.com', e.name, e.catValue, e.id.toString(), true)
+                                                    console.info(`[Info] Email Sent to ${e.email}`)
+                                                    e.mailSent = true
+                                                    await this.service.updateRunner(e.id, e)
+                                                })
                                             })
                                         }
                                         res.status(200)
@@ -192,7 +203,8 @@ export class MercadopagoController {
     @Post('walk')
     async sendWalkMail(@Req() req, @Body() Body, @Res() res){
         try {
-            this.service.sendMailWalk(req.body.email, req.body.name, 'A confirmar').then( () => {
+            await this.service.sendMailWalk(req.body.email, req.body.name, 'A confirmar').then( async () => {
+                await this.service.sendMailWalk('tomas.decaboteau@gmail.com', req.body.name, 'A confirmar' )
                 console.info(`[Info] Email Sent to ${req.body.email}`)
                 res.json({status: `Email Sent to ${req.body.email}`})
                 res.status(200)
@@ -202,6 +214,21 @@ export class MercadopagoController {
             res.status(500)  
         }
 
+    }
+
+    @Post('sendnewmail')
+    async sendNewMail(@Req() req, @Body() body, @Res() res){
+        try {
+            await this.service.sendMail(req.body.email, req.body.name, req.body.distance, req.body.runnerNumber, req.body.approved).then( () => {
+                console.info(`[Info] Email Sent to ${req.body.email}`)
+                res.json({status: `Email Sent to ${req.body.email}`})
+                res.status(200)
+            })
+        }
+        catch (error) {
+            console.error(`Error al enviar el mail a ${req.body.email} error:  ${error}`)
+            res.status(500)
+        }
     }
 
 }

@@ -142,11 +142,13 @@ export class MercadopagoService extends TypeOrmCrudService<Item> {
 
     async sendMail(email: string, name: string, distance: string, runnerNumber: string, approved?: boolean, checkUrl?: string){
         //let _email = process.env.EMAIL
+        let mailList = [email, 'copia-emails@mmrun.com.ar', 'test@mmrun.com.ar']
         if(approved === true){
             try {
                 await transporter.sendMail({
                     from: `notificaciones@mmrun.com.ar`,
-                    to: email,
+                    to: mailList,
+                    cc: 'copia-emails@mmrun.com.ar',
                     subject: 'Confirmación de inscripción',
                     text: 'Confirmación, pago realizado con exito',
                     html: `
@@ -236,7 +238,11 @@ export class MercadopagoService extends TypeOrmCrudService<Item> {
                             </div>
 
                         </div>
-                    </div>`
+                    </div>`,
+                    envelope: {
+                        from: `notificaciones@mmrun.com.ar`,
+                        to: email
+                    }
                 })
                 
             } catch (error) {
@@ -247,7 +253,8 @@ export class MercadopagoService extends TypeOrmCrudService<Item> {
             try {
                 await transporter.sendMail({
                     from: `notificaciones@mmrun.com.ar`,
-                    to: email,
+                    to: mailList,
+                    bcc: 'notificaciones@mmrun.com.ar',
                     subject: 'Confirmación de inscripción',
                     text: 'Inscripción Pendiente',
                     html: `
@@ -325,7 +332,11 @@ export class MercadopagoService extends TypeOrmCrudService<Item> {
                                 <h1>${runnerNumber}</h1>
                             </div>
                         </div>
-                    </div>`
+                    </div>`,
+                    envelope: {
+                        from: `notificaciones@mmrun.com.ar`,
+                        to: email
+                    }
                 })
                 
             } catch (error) {
@@ -339,6 +350,7 @@ export class MercadopagoService extends TypeOrmCrudService<Item> {
             await transporter.sendMail({
                 from: `notificaciones@mmrun.com.ar`,
                 to: email,
+                bcc: 'notificaciones@mmrun.com.ar',
                 subject: 'Confirmación de inscripción',
                 text: 'Confirmación exitosa',
                 html: `
@@ -430,7 +442,11 @@ export class MercadopagoService extends TypeOrmCrudService<Item> {
                         </div>
 
                     </div>
-                </div>`
+                </div>`,
+                envelope: {
+                    from: `notificaciones@mmrun.com.ar`,
+                    to: email
+                }
             })
             
         } catch (error) {
