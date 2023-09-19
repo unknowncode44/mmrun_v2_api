@@ -45,6 +45,31 @@ export class MercadopagoService extends TypeOrmCrudService<Item> {
             })
     }
 
+    async fetchPayments(date_from: string) : Promise<any>{
+        // formato date_from: 2023-04-02T18:20:46.000Z
+        
+        
+        const url   : string =  `https://api.mercadopago.com/merchant_orders/search?&date_created_from=${date_from}`
+        const token : string = process.env.ACCESS_TOKEN
+
+        try {
+            const data = await axios.get(url, {
+                headers: {
+                    Authorization: `Bearer ${token}`
+                }
+            });
+            //console.log(data.data.elements);
+            
+
+            return data.data.elements
+            
+            
+        } catch (error) {
+            console.log(error);
+            return error
+        }
+    }
+
     async fetchData(id: any): Promise<any> {
         const url = `https://api.mercadopago.com/v1/payments/${id}`;
         const token = process.env.ACCESS_TOKEN; // Reemplaza esto con tu token real

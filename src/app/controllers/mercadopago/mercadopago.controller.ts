@@ -1,7 +1,7 @@
-import { Body, Controller, Post, Req, Res } from '@nestjs/common';
+import { Body, Controller, Post, Req, Res, Get } from '@nestjs/common';
 import { Crud } from '@nestjsx/crud';
 import { Item } from 'src/app/entities/items.entity';
-
+import axios from 'axios';
 import { MercadopagoService } from 'src/app/services/mercadopago/mercadopago.service';
 
 
@@ -52,65 +52,69 @@ export class MercadopagoController {
             
             const reference = data.title
             if(data.status === 'approved'){
-                this.service.fetchRunners().then( async (response) =>  {
-                    for (let i = 0; i < response.data.length; i++) {
-                        var e = response.data[i];
-                        if(e.preference_id === reference){
-                            if(e.status !== 'approved'){
-                                e.merchant_order_id = data.merchant_order_id
-                                e.status = data.status 
-                                e.payment_id = data.payment_id
-                                if(e.runnerNumber !== e.id.toString()) {
-                                    e.runnerNumber = e.id.toString()
-                                    console.info(`[Info] Updated RunnerNumber of ${e.id}`)
+                try {
+                    this.service.fetchRunners().then( async (response) =>  {
+                        for (let i = 0; i < response.data.length; i++) {
+                            var e = response.data[i];
+                            if(e.preference_id === reference){
+                                if(e.status !== 'approved'){
+                                    e.merchant_order_id = data.merchant_order_id
+                                    e.status = data.status 
+                                    e.payment_id = data.payment_id
+                                    if(e.runnerNumber !== e.id.toString()) {
+                                        e.runnerNumber = e.id.toString()
+                                        console.info(`[Info] Updated RunnerNumber of ${e.id}`)
+                                    }
+                                    await this.service.updateRunner(e.id, e).then( async () => {
+                                        if(e.mailSent !== null && e.mailSent === true){
+                                            await this.service.sendMail(e.email, e.name, e.catValue, e.id.toString(), true, e.paymentStatusCheckUrl)
+                                            .then( async () => {
+                                                await this.service.sendMail('tomas.decaboteau@gmail.com', e.name, e.catValue, e.id.toString(), true, e.paymentStatusCheckUrl)
+                                                console.info(`[Info] Email Sent to ${e.email}`)
+                                                e.mailSent = true
+                                                await this.service.updateRunner(e.id, e)  
+                                            })
+                                            return
+                                        }
+                                        else {
+                                            await this.service.sendMail(e.email, e.name, e.catValue, e.id.toString(), true, e.paymentStatusCheckUrl)
+                                            .then(async () => {
+                                                await this.service.sendMail('tomas.decaboteau@gmail.com', e.name, e.catValue, e.id.toString(), true, e.paymentStatusCheckUrl)
+                                                console.info(`[Info] Email Sent to ${e.email}`)
+                                                e.mailSent = true
+                                                await this.service.updateRunner(e.id, e)  
+                                            })
+                                        }
+                                    })
+                                    res.json({status: data.status, payment_id: data.payment_id, runnerId: e.id, reference: reference})
+                                    res.status(200)
                                 }
-                                await this.service.updateRunner(e.id, e).then( async () => {
-                                    if(e.mailSent !== null && e.mailSent === true){
-                                        await this.service.sendMail(e.email, e.name, e.catValue, e.id.toString(), true, e.paymentStatusCheckUrl)
-                                        .then( async () => {
-                                            await this.service.sendMail('tomas.decaboteau@gmail.com', e.name, e.catValue, e.id.toString(), true, e.paymentStatusCheckUrl)
-                                            console.info(`[Info] Email Sent to ${e.email}`)
-                                            e.mailSent = true
-                                            await this.service.updateRunner(e.id, e)  
-                                        })
-                                        return
-                                    }
-                                    else {
-                                        await this.service.sendMail(e.email, e.name, e.catValue, e.id.toString(), true, e.paymentStatusCheckUrl)
-                                        .then(async () => {
-                                            await this.service.sendMail('tomas.decaboteau@gmail.com', e.name, e.catValue, e.id.toString(), true, e.paymentStatusCheckUrl)
-                                            console.info(`[Info] Email Sent to ${e.email}`)
-                                            e.mailSent = true
-                                            await this.service.updateRunner(e.id, e)  
-                                        })
-                                    }
-                                })
-                                res.json({status: data.status, payment_id: data.payment_id, runnerId: e.id, reference: reference})
-                                res.status(200)
+    
+                                else {
+                                    this.service.updateRunner(e.id, e).then( async () => {
+                                        if(e.mailSent !== null || e.mailSent === true){
+                                            return
+                                        }
+                                        else {
+                                            await this.service.sendMail(e.email, e.name, e.catValue, e.id.toString(), false, e.paymentStatusCheckUrl)
+                                            .then( async () => {
+                                                await this.service.sendMail('tomas.decaboteau@gmail.com', e.name, e.catValue, e.id.toString(), true, e.paymentStatusCheckUrl)
+                                                console.info(`[Info] Email Sent to ${e.email}`)
+                                                e.mailSent = true
+                                                await this.service.updateRunner(e.id, e)  
+                                            })
+                                        }
+                                    })
+    
+                                }
+    
+                                break
                             }
-
-                            else {
-                                this.service.updateRunner(e.id, e).then( async () => {
-                                    if(e.mailSent !== null || e.mailSent === true){
-                                        return
-                                    }
-                                    else {
-                                        await this.service.sendMail(e.email, e.name, e.catValue, e.id.toString(), false, e.paymentStatusCheckUrl)
-                                        .then( async () => {
-                                            await this.service.sendMail('tomas.decaboteau@gmail.com', e.name, e.catValue, e.id.toString(), true, e.paymentStatusCheckUrl)
-                                            console.info(`[Info] Email Sent to ${e.email}`)
-                                            e.mailSent = true
-                                            await this.service.updateRunner(e.id, e)  
-                                        })
-                                    }
-                                })
-
-                            }
-
-                            break
-                        }
-                    }  
-                })                           
+                        }  
+                    }) 
+                } catch (error) {
+                    console.log(error)
+                }                          
             }
             else {
                 console.log('payment no es approved');
@@ -121,84 +125,90 @@ export class MercadopagoController {
         }
 
         else if(req.body.data != undefined){
-            const data = await this.service.fetchData(req.body.data.id)
+            try {
+                const data = await this.service.fetchData(req.body.data.id)
                 //console.log(`fetch data devolvio: ${JSON.stringify(data)}`)
-                if(data !== undefined) {
-                    //console.log(`Data no es undefined, es: ${JSON.stringify(data)}`);
-                    
-                    if(data.description) {
-                        const payment = {
-                            card: data.card,
-                            collector_id: data.collector_id,
-                            date_approved: data.date_approved,
-                            date_created: data.date_created,
-                            description: data.description,
-                            id: data.id,
-                            money_release_date: data.money_release_date,
-                            order: data.order,
-                            payer: data.payer,
-                            payment_method: data.payment_method,
-                            statement_description: data.statement_description,
-                            status: data.status,
-                            status_detail: data.status_detail,
-                            transaction_amount: data.transaction_amount
-                        }
-            
-                        const reference = payment.description
-                        if(payment.status === 'approved'){
-                            this.service.fetchRunners().then( async (response) => {
-                                for (let i = 0; i < response.data.length; i++) {
-                                    var e = response.data[i];
-                                    if(e.preference_id === reference){
-                                        e.status = payment.status 
-                                        e.payment_id = payment.id
-                                        if(e.runnerNumber !== e.id.toString()) {
-                                            e.runnerNumber = e.id.toString()
-                                            await this.service.updateRunner(e.id, e).then(() => {
-                                                console.info(`[Info] Updated RunnerNumber of ${e.id}`)
-                                            })                                            
-                                        }
-                                        if(e.mailSent === false || e.mailSent === null) {
-                                            e.mailSent = true
-                                            this.service.updateRunner(e.id, e).then( async () => {
-                                                await this.service.sendMail(e.email, e.name, e.catValue, e.id.toString(), true)
-                                                .then( async () => {
-                                                    await this.service.sendMail('tomas.decaboteau@gmail.com', e.name, e.catValue, e.id.toString(), true)
-                                                    console.info(`[Info] Email Sent to ${e.email}`)
-                                                    e.mailSent = true
-                                                    await this.service.updateRunner(e.id, e)
-                                                })
-                                            })
-                                        }
-                                        res.status(200)
-                                        break
+            if(data !== undefined) {
+                //console.log(`Data no es undefined, es: ${JSON.stringify(data)}`);
+                
+                if(data.description) {
+                    const payment = {
+                        card: data.card,
+                        collector_id: data.collector_id,
+                        date_approved: data.date_approved,
+                        date_created: data.date_created,
+                        description: data.description,
+                        id: data.id,
+                        money_release_date: data.money_release_date,
+                        order: data.order,
+                        payer: data.payer,
+                        payment_method: data.payment_method,
+                        statement_description: data.statement_description,
+                        status: data.status,
+                        status_detail: data.status_detail,
+                        transaction_amount: data.transaction_amount
+                    }
+        
+                    const reference = payment.description
+                    if(payment.status === 'approved'){
+                        this.service.fetchRunners().then( async (response) => {
+                            for (let i = 0; i < response.data.length; i++) {
+                                var e = response.data[i];
+                                if(e.preference_id === reference){
+                                    e.status = payment.status 
+                                    e.payment_id = payment.id
+                                    if(e.runnerNumber !== e.id.toString()) {
+                                        e.runnerNumber = e.id.toString()
+                                        await this.service.updateRunner(e.id, e).then(() => {
+                                            console.info(`[Info] Updated RunnerNumber of ${e.id}`)
+                                        })                                            
                                     }
-                                }  
-                            })                           
-                        }
-                        else {
-                            //console.log('payment no es approved');
-                            res.json({status: "pending", reference})
-                            res.status(200)
-                            
-                        }
-                        
+                                    if(e.mailSent === false || e.mailSent === null) {
+                                        e.mailSent = true
+                                        this.service.updateRunner(e.id, e).then( async () => {
+                                            await this.service.sendMail(e.email, e.name, e.catValue, e.id.toString(), true)
+                                            .then( async () => {
+                                                await this.service.sendMail('tomas.decaboteau@gmail.com', e.name, e.catValue, e.id.toString(), true)
+                                                console.info(`[Info] Email Sent to ${e.email}`)
+                                                e.mailSent = true
+                                                await this.service.updateRunner(e.id, e)
+                                            })
+                                        })
+                                    }
+                                    res.status(200)
+                                    break
+                                }
+                            }  
+                        })                           
                     }
                     else {
-                        console.log('DATA DESCRIPTION NO EXISTE');   
+                        //console.log('payment no es approved');
+                        res.json({status: "pending", reference})
+                        res.status(200)
+                        
                     }
-                }
-                else {
-                    console.log('data no existe')
                     
                 }
+                else {
+                    console.log('DATA DESCRIPTION NO EXISTE');   
+                }
+            }
+            else {
+                console.log('data no existe')
+                
+            }
             res.status(200)
+                
+            } catch (error) {
+                console.log(error)
+            }
         }
         else {
             console.log('req.body.data es undefined');
             res.status(404)
         }
     }
+
 
     @Post('walk')
     async sendWalkMail(@Req() req, @Body() Body, @Res() res){
@@ -227,6 +237,55 @@ export class MercadopagoController {
         }
         catch (error) {
             console.error(`Error al enviar el mail a ${req.body.email} error:  ${error}`)
+            res.status(500)
+        }
+    }
+
+    @Post('synchronize')
+    async synchronize(@Req() req, @Res() res){
+        console.log('llego solicitud');
+        let preferences = []
+        let matches = []
+        const date_from = req.body.date_from
+        try {
+            await this.service.fetchPayments(date_from)
+            .then( async (data) => {
+                for (let i = 0; i < data.length; i++) {
+                    const e = data[i];
+                    let obj = {
+                        title: e.items[0].title,
+                        status: e.order_status,
+                        payment_info: e.payments
+                    }
+                    preferences.push(obj)
+                }
+                await axios.get('https://api.mmrun.com.ar/runners').then(
+                    (runners) => {
+                        for (let i = 0; i < runners.data.length; i++) {
+                            const runner = runners.data[i];
+                            for (let i = 0; i < preferences.length; i++) {
+                                const pref = preferences[i];
+                                if(pref.title === runner.preference_id) {
+                                    if(pref.status === 'paid' && runner.status === 'pending'){
+                                        console.log(`Nombre: ${runner.name}, ID: ${runner.runnerNumber}`);
+                                        
+                                    } 
+                                }
+                            }
+                        }
+                        res.json({
+                            data: preferences,
+                            runners: runners.data
+                        })
+                        res.status(200)
+                    }
+                ) 
+            })
+
+            
+            
+        }
+        catch (error) {
             res.status(500)
         }
     }
