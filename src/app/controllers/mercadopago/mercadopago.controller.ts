@@ -245,42 +245,93 @@ export class MercadopagoController {
     async synchronize(@Req() req, @Res() res){
         console.log('llego solicitud');
         let preferences = []
-        let matches = []
+        let matches = 0
+        let offset = 0
+        let report = []
         const date_from = req.body.date_from
         try {
-            await this.service.fetchPayments(date_from)
-            .then( async (data) => {
-                for (let i = 0; i < data.length; i++) {
-                    const e = data[i];
-                    let obj = {
-                        title: e.items[0].title,
-                        status: e.order_status,
-                        payment_info: e.payments
+            for (let index = 0; index < 500; index + 50) {
+                await this.service.fetchPayments(offset.toString())
+                .then( async (data) => {
+                    console.log(`Total datos: ${data.length}`);
+                    for (let i = 0; i < data.length; i++) {
+                        const e = data[i];
+                        if(e.payments.length > 0) {
+                            let obj = {
+                                pref_id: e.id,
+                                title: e.items[0].title,
+                                status: e.order_status,
+                                payment_id: e.payments[0].id,
+                                payment_amount: e.payments[0].transaction_amount,
+                                payment_status: e.payments[0].status,
+                                payment_status_detail: e.payments[0].status_detail,
+                                payment_approved_date: e.payments[0].date_created,
+                            }
+                            preferences.push(obj)
+                        }
+                        else {
+                            let obj = {
+                                pref_id: e.id,
+                                title: e.items[0].title,
+                                status: e.order_status,
+                                payment_id: null,
+                                payment_amount: null,
+                                payment_status: null,
+                                payment_status_detail: null,
+                                payment_approved_date: null,
+                            }
+                            preferences.push(obj)
+                        }
                     }
-                    preferences.push(obj)
-                }
-                await axios.get('https://api.mmrun.com.ar/runners').then(
-                    (runners) => {
+                })
+                offset = offset + 50   
+                console.log(`preferencias: ${preferences.length}`);
+                if(preferences.length > 500) {
+                    break
+                }  
+            }
+
+            console.log('sali del for')
+            console.log(`Total Datos Recogidos: ${preferences.length}`)
+
+            await axios.get('https://api.mmrun.com.ar/runners').then(
+                    (runners) => {    
                         for (let i = 0; i < runners.data.length; i++) {
                             const runner = runners.data[i];
                             for (let i = 0; i < preferences.length; i++) {
                                 const pref = preferences[i];
                                 if(pref.title === runner.preference_id) {
-                                    if(pref.status === 'paid' && runner.status === 'pending'){
-                                        console.log(`Nombre: ${runner.name}, ID: ${runner.runnerNumber}`);
-                                        
-                                    } 
+                                    matches++
+                                    let z = {
+                                        pref_id                 : pref.pref_id,
+                                        title                   : pref.title,
+                                        status                  : pref.status,
+                                        payment_id              : pref.payment_id,
+                                        payment_amount          : pref.payment_amount,
+                                        payment_status          : pref.payment_status,
+                                        payment_status_detail   : pref.payment_status_detail,
+                                        payment_approved_date   : pref.payment_approved_date,
+                                        runnerId                : runner.id,
+                                        runnerNumber            : runner.runnerNumber,
+                                        runnerName              : runner.name,
+                                        runnerCirc              : runner.catValue,
+                                        runnerEmail             : runner.email,
+                                        runnerStatus            : runner.status,
+                                        runnerPaymentAmount     : runner.payment_amount,
+                                        runnerDiscount          : runner.discountText
+                                    }
+                                    report.push(z)
                                 }
                             }
                         }
+                        console.log(matches);
+                        
                         res.json({
-                            data: preferences,
-                            runners: runners.data
+                            data: report,
                         })
                         res.status(200)
                     }
                 ) 
-            })
 
             
             

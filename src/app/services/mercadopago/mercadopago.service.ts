@@ -49,7 +49,7 @@ export class MercadopagoService extends TypeOrmCrudService<Item> {
         // formato date_from: 2023-04-02T18:20:46.000Z
         
         
-        const url   : string =  `https://api.mercadopago.com/merchant_orders/search?&date_created_from=${date_from}`
+        const url   : string =  `https://api.mercadopago.com/merchant_orders/search?&date_created_from=2023-07-07T15:01:19.187Z&date_created_to=2023-09-20T16:16:17.000Z&limit=50&offset=${date_from}`
         const token : string = process.env.ACCESS_TOKEN
 
         try {
