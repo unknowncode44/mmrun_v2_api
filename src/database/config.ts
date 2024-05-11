@@ -11,7 +11,7 @@ import { Sponsor                } from "../app/entities/sponsor.entity";
 
 
 const dbConfig: TypeOrmModuleOptions = {
-    type: "mysql",
+    type: "postgres",
     host: process.env.DB_HOST,
     port: parseInt(process.env.DB_PORT, 10),
     username: process.env.DB_USERNAME,

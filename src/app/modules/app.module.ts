@@ -12,7 +12,6 @@ import { RunnersModule      } from './runners/runners.module';
 import { CategoriesModule   } from './categories/categories.module';
 import { SponsorsModule     } from './sponsors/sponsors.module';
 import { UiModule           } from './ui/ui.module';
-import { MercadopadoModule  } from './mercadopado/mercadopado.module';
 import { AuthModule         } from '../modules/auth/auth.module';
 import { DiscountsModule    } from './discounts/discounts.module';
 
@@ -35,7 +34,6 @@ import dbConfig from 'src/database/config';
     CategoriesModule,
     SponsorsModule,
     UiModule,
-    MercadopadoModule,
     AuthModule,
     DiscountsModule,
     ServeStaticModule.forRoot({

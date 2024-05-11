@@ -9,18 +9,18 @@ import * as nodemailer from 'nodemailer'
 
 
 
-export const transporter = nodemailer.createTransport({
-  host: process.env.SMTP,
-  port: process.env.MAIL_PORT,
-  secure: true,
-  auth: {
-      user: process.env.EMAIL, // Email
-      pass: process.env.PASSWORD, // Contraseña
-  }
-})
-transporter.verify().then(() => {
-  console.log('Mailer Online')
-})
+// export const transporter = nodemailer.createTransport({
+//   host: process.env.SMTP,
+//   port: process.env.MAIL_PORT,
+//   secure: false,
+//   auth: {
+//       user: process.env.EMAIL, // Email
+//       pass: process.env.PASSWORD, // Contraseña
+//   }
+// })
+// transporter.verify().then(() => {
+//   console.log('Mailer Online')
+// })
 
 
 async function bootstrap() {
@@ -39,6 +39,6 @@ async function bootstrap() {
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api', app, document);
 
-  await app.listen(3040);
+  await app.listen(3087);
 }
 bootstrap();
