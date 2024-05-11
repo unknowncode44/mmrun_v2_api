@@ -5,24 +5,6 @@ import { NestFactory } from '@nestjs/core';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { AppModule } from './app/modules/app.module';
 
-import * as nodemailer from 'nodemailer'
-
-
-
-// export const transporter = nodemailer.createTransport({
-//   host: process.env.SMTP,
-//   port: process.env.MAIL_PORT,
-//   secure: false,
-//   auth: {
-//       user: process.env.EMAIL, // Email
-//       pass: process.env.PASSWORD, // Contraseña
-//   }
-// })
-// transporter.verify().then(() => {
-//   console.log('Mailer Online')
-// })
-
-
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, {
     snapshot: true
